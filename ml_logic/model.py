@@ -6,6 +6,7 @@ from openai import OpenAI
 
 from gtts import gTTS
 import pygame
+import os
 
 processor = BlipProcessor.from_pretrained('Salesforce/blip-image-captioning-base')
 model = BlipForConditionalGeneration.from_pretrained('Salesforce/blip-image-captioning-base')
@@ -28,11 +29,11 @@ def caption_generator(**inputs):
     caption = processor.decode(out[0], skip_special_tokens=True)
     return caption
 
-def image_description(caption, prompt, image):
+def image_description(caption, prompt, image, language = LANGUAGE):
     '''
     Generate a detailed description using the caption as context
     '''
-    descr_prompt = prompt + caption
+    descr_prompt = prompt + caption + f' It must be in {language} language'
     if MODE=='openai':
         client= OpenAI(api_key = OPENAI_API_KEY)
         response = client.chat.completions.create(
@@ -45,7 +46,7 @@ def image_description(caption, prompt, image):
 
         detailed_description = response.choices[0].message.content.strip().strip()
     else:
-        descr_prompt = prompt + caption
+
         inputs = processor(text=descr_prompt, images=image, return_tensors="pt")
         out = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)  # Set max_new_tokens to handle longer output
         detailed_description = processor.decode(out[0], skip_special_tokens=True)
@@ -53,10 +54,12 @@ def image_description(caption, prompt, image):
     return detailed_description
 
 
-def speech_maker(description):
+def speech_maker(description, image_path, language = LANGUAGE):
     try:
-        tts = gTTS(description)
-        tts.save(SOUNDS_OUTPUT_DIR)
+        tts = gTTS(description, lang=LANGUAGE_DICT[language])
+        image_name = os.path.basename(image_path)
+        output_dir = os.path.join(SOUNDS_OUTPUT_DIR, f'audio_{image_name}_{LANGUAGE_DICT[language]}.mp3' )
+        tts.save(output_dir)
         # client = OpenAI()
         # response = client.audio.speech.create(
         #     model="tts-1",

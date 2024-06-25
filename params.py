@@ -32,3 +32,7 @@ LANGUAGE = os.environ.get('LANGUAGE')
 ##################  CONSTANTS  ##################
 MODEL_DIR = "models"
 CHROMA_PERSIST_DIR = os.path.join('db', 'chroma_3')
+
+LANGUAGE_DICT = {'German':'de',
+                 'English': 'en'
+                 }
