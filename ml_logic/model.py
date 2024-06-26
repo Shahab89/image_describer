@@ -1,4 +1,4 @@
-from utils import *
+from utils import remove_newlines
 
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from params import *
@@ -50,14 +50,15 @@ def image_description(caption, prompt, image, language = LANGUAGE):
         inputs = processor(text=descr_prompt, images=image, return_tensors="pt")
         out = model.generate(**inputs, max_new_tokens=MAX_NEW_TOKENS)  # Set max_new_tokens to handle longer output
         detailed_description = processor.decode(out[0], skip_special_tokens=True)
-
-    return detailed_description
+    clean_description = remove_newlines(detailed_description)
+    return clean_description
 
 
 def speech_maker(description, image_path, language = LANGUAGE):
+    output_dir = None
     try:
         tts = gTTS(description, lang=LANGUAGE_DICT[language])
-        image_name = os.path.basename(image_path)
+        image_name = os.path.basename(image_path).split('.')[0]
         output_dir = os.path.join(SOUNDS_OUTPUT_DIR, f'audio_{image_name}_{LANGUAGE_DICT[language]}.mp3' )
         tts.save(output_dir)
         # client = OpenAI()
@@ -77,3 +78,4 @@ def speech_maker(description, image_path, language = LANGUAGE):
 
     except Exception as e:
         print(f"An error occurred: {e}")
+    return output_dir

@@ -14,7 +14,7 @@ def generate_detailed_description(language, image_path = IMAGE_PATH):
 
 
 def text_to_speech(description, image_path, language):
-    speech_maker(description, image_path, language)
+    return speech_maker(description, image_path, language)
 
 
 
