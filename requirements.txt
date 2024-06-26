@@ -5,3 +5,4 @@ Pillow
 gtts
 fastapi
 aiofiles
+openai
